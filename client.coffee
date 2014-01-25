@@ -4,6 +4,11 @@ render = (state) ->
   title = document.getElementById 'title'
   title.innerText = state.title
 
+  div = document.getElementById 'number'
+  div.innerText = state.ticker
+
+  content = document.getElementById 'content'
+  div.innerHTML = state.content if state.content?
 
 
 
@@ -49,6 +54,7 @@ ws.onmessage = (msg) ->
 
       state = type.apply state, op
       render state
+      ws.send JSON.stringify {a:'ack', v:msg.v}
 
 ws.onopen = ->
   console.log 'connected'
@@ -68,5 +74,6 @@ submit = (op) ->
   else
     pending = op
 
-  flush()
+  # Allow other ops to be composed together during this event frame
+  setTimeout (-> flush()), 0
   render state
